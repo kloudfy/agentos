@@ -46,3 +46,10 @@ export type {
   EvalConfig,
   EvalRunner,
 } from './types';
+
+// Export classes
+export { ScenarioExecutor } from './scenario-executor';
+export { QualityGate } from './quality-gate';
+export type { QualityGateResult } from './quality-gate';
+export { BaselineManager } from './baseline-manager';
+export { EvalHarness } from './eval-harness';
