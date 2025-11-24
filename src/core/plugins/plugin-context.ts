@@ -1,5 +1,6 @@
 import { EventEmitter } from '../events';
 import { Plugin } from './plugin';
+import { StateManager } from '../state';
 
 /**
  * Logger interface providing structured logging capabilities.
@@ -71,6 +72,9 @@ export interface PluginContext {
 
   /** Plugin-specific configuration object */
   readonly config: Record<string, unknown>;
+
+  /** State manager for persisting plugin data */
+  readonly state: StateManager;
 
   /**
    * Retrieves a loaded plugin by name with type safety.

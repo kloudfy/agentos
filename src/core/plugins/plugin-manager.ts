@@ -8,6 +8,7 @@ import {
   PluginNotFoundError,
   PluginInUseError,
 } from './errors';
+import { StateStore, StateManager } from '../state';
 
 /**
  * Result of loading multiple plugins.
@@ -66,16 +67,21 @@ export class PluginManager {
   /** Event emitter for plugin lifecycle events */
   private events: EventEmitter;
 
+  /** State store for plugin state persistence */
+  private stateStore: StateStore;
+
   /**
    * Creates a new PluginManager instance.
    * 
    * @param events - EventEmitter for plugin lifecycle events
+   * @param stateStore - StateStore for plugin state persistence
    */
-  constructor(events: EventEmitter) {
+  constructor(events: EventEmitter, stateStore: StateStore) {
     this.registry = new Map();
     this.loaded = new Map();
     this.configs = new Map();
     this.events = events;
+    this.stateStore = stateStore;
   }
 
   /**
@@ -185,6 +191,7 @@ export class PluginManager {
         events: this.events,
         logger: this.createLogger(pluginName),
         config,
+        state: new StateManager(this.stateStore, pluginName),
         getPlugin: <T extends Plugin>(name: string): T => {
           return this.getPlugin<T>(name);
         },
