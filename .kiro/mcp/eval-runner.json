@@ -1,0 +1,85 @@
+{
+  "name": "eval-runner",
+  "version": "1.0.0",
+  "description": "Runs evaluation harness test scenarios and returns quality metrics for AgentOS",
+  "type": "tool",
+  "enabled": true,
+  "config": {
+    "command": "npm",
+    "args": ["run", "eval"],
+    "timeout": 300000,
+    "workingDirectory": ".",
+    "env": {
+      "NODE_ENV": "test",
+      "EVAL_MODE": "quality-gate"
+    }
+  },
+  "triggers": {
+    "manual": true,
+    "onCommit": true,
+    "onPullRequest": true,
+    "beforeDeploy": true
+  },
+  "qualityGates": {
+    "enabled": true,
+    "thresholds": {
+      "minPassRate": 0.95,
+      "maxRegressionPercent": 5,
+      "minCoverage": 90,
+      "maxLatencyMs": 1000
+    },
+    "blockOnFailure": true
+  },
+  "output": {
+    "format": "json",
+    "metrics": [
+      "passRate",
+      "failureCount",
+      "regressionPercent",
+      "coverage",
+      "avgLatency",
+      "p95Latency",
+      "p99Latency"
+    ],
+    "logPath": ".kiro/logs/eval-results.json",
+    "reportPath": "docs/eval-reports/"
+  },
+  "scenarios": {
+    "unit": {
+      "enabled": true,
+      "path": "src/**/__tests__/**/*.test.ts",
+      "threshold": 0.95
+    },
+    "integration": {
+      "enabled": true,
+      "path": "src/**/__tests__/integration.test.ts",
+      "threshold": 0.90
+    },
+    "e2e": {
+      "enabled": true,
+      "path": "tests/e2e/**/*.spec.ts",
+      "threshold": 0.85
+    },
+    "performance": {
+      "enabled": true,
+      "benchmarks": [
+        "event-emission",
+        "plugin-loading",
+        "state-persistence",
+        "personality-switching"
+      ],
+      "maxRegressionPercent": 5
+    }
+  },
+  "notifications": {
+    "onFailure": true,
+    "onRegression": true,
+    "channels": ["console", "file"]
+  },
+  "metadata": {
+    "author": "AgentOS Team",
+    "category": "quality-assurance",
+    "tags": ["testing", "quality-gate", "ci-cd"],
+    "documentation": "docs/mcp/eval-runner.md"
+  }
+}

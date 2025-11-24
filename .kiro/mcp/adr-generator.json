@@ -1,0 +1,77 @@
+{
+  "name": "adr-generator",
+  "version": "1.0.0",
+  "description": "Automatically generates Architecture Decision Records when interface files change",
+  "type": "tool",
+  "enabled": true,
+  "config": {
+    "command": "node",
+    "args": ["scripts/generate-adr.js"],
+    "timeout": 30000,
+    "workingDirectory": "."
+  },
+  "triggers": {
+    "manual": true,
+    "onFileChange": {
+      "enabled": true,
+      "patterns": [
+        "src/**/types.ts",
+        "src/**/interfaces.ts",
+        "src/**/*.interface.ts",
+        "src/core/*/index.ts"
+      ],
+      "debounceMs": 5000
+    }
+  },
+  "output": {
+    "directory": "docs/adr",
+    "format": "markdown",
+    "template": "docs/templates/adr-template.md",
+    "naming": {
+      "pattern": "{number}-{slug}.md",
+      "numberFormat": "0000",
+      "sequential": true
+    }
+  },
+  "adrConfig": {
+    "autoNumber": true,
+    "startNumber": 1,
+    "includeContext": true,
+    "includeConsequences": true,
+    "sections": [
+      "Status",
+      "Context",
+      "Decision",
+      "Consequences",
+      "Alternatives Considered",
+      "Related Decisions"
+    ],
+    "metadata": {
+      "includeAuthor": true,
+      "includeDate": true,
+      "includeReviewers": false,
+      "includeTags": true
+    }
+  },
+  "analysis": {
+    "detectBreakingChanges": true,
+    "analyzeImpact": true,
+    "suggestAlternatives": true,
+    "linkRelatedADRs": true
+  },
+  "git": {
+    "autoCommit": false,
+    "commitMessage": "docs: Add ADR-{number} - {title}",
+    "branch": "main"
+  },
+  "notifications": {
+    "onCreate": true,
+    "channels": ["console", "file"]
+  },
+  "metadata": {
+    "author": "AgentOS Team",
+    "category": "documentation",
+    "tags": ["adr", "architecture", "documentation"],
+    "documentation": "docs/mcp/adr-generator.md"
+  }
+}

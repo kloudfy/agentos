@@ -1,0 +1,233 @@
+{
+  "name": "github-integration",
+  "version": "1.0.0",
+  "description": "GitHub API integration for CI/CD automation and repository management",
+  "type": "tool",
+  "enabled": true,
+  "config": {
+    "baseUrl": "https://api.github.com",
+    "apiVersion": "2022-11-28",
+    "timeout": 30000,
+    "retries": 3,
+    "retryDelay": 1000
+  },
+  "authentication": {
+    "type": "bearer",
+    "tokenEnv": "GITHUB_TOKEN",
+    "scopes": [
+      "repo",
+      "workflow",
+      "read:org",
+      "write:checks"
+    ]
+  },
+  "rateLimit": {
+    "enabled": true,
+    "maxRequestsPerHour": 5000,
+    "checkBeforeRequest": true,
+    "waitOnLimit": true,
+    "alertThreshold": 100
+  },
+  "operations": {
+    "repository": {
+      "get": {
+        "endpoint": "/repos/{owner}/{repo}",
+        "method": "GET",
+        "description": "Get repository information",
+        "params": ["owner", "repo"]
+      },
+      "listBranches": {
+        "endpoint": "/repos/{owner}/{repo}/branches",
+        "method": "GET",
+        "description": "List repository branches",
+        "params": ["owner", "repo"]
+      },
+      "getContent": {
+        "endpoint": "/repos/{owner}/{repo}/contents/{path}",
+        "method": "GET",
+        "description": "Get file contents",
+        "params": ["owner", "repo", "path", "ref"]
+      }
+    },
+    "pullRequests": {
+      "list": {
+        "endpoint": "/repos/{owner}/{repo}/pulls",
+        "method": "GET",
+        "description": "List pull requests",
+        "params": ["owner", "repo", "state", "sort", "direction"]
+      },
+      "get": {
+        "endpoint": "/repos/{owner}/{repo}/pulls/{pull_number}",
+        "method": "GET",
+        "description": "Get pull request details",
+        "params": ["owner", "repo", "pull_number"]
+      },
+      "listFiles": {
+        "endpoint": "/repos/{owner}/{repo}/pulls/{pull_number}/files",
+        "method": "GET",
+        "description": "List files changed in PR",
+        "params": ["owner", "repo", "pull_number"]
+      },
+      "merge": {
+        "endpoint": "/repos/{owner}/{repo}/pulls/{pull_number}/merge",
+        "method": "PUT",
+        "description": "Merge pull request",
+        "params": ["owner", "repo", "pull_number", "commit_title", "merge_method"]
+      }
+    },
+    "workflows": {
+      "list": {
+        "endpoint": "/repos/{owner}/{repo}/actions/workflows",
+        "method": "GET",
+        "description": "List workflows",
+        "params": ["owner", "repo"]
+      },
+      "listRuns": {
+        "endpoint": "/repos/{owner}/{repo}/actions/runs",
+        "method": "GET",
+        "description": "List workflow runs",
+        "params": ["owner", "repo", "workflow_id", "status", "branch"]
+      },
+      "getRun": {
+        "endpoint": "/repos/{owner}/{repo}/actions/runs/{run_id}",
+        "method": "GET",
+        "description": "Get workflow run details",
+        "params": ["owner", "repo", "run_id"]
+      },
+      "cancelRun": {
+        "endpoint": "/repos/{owner}/{repo}/actions/runs/{run_id}/cancel",
+        "method": "POST",
+        "description": "Cancel workflow run",
+        "params": ["owner", "repo", "run_id"]
+      },
+      "rerunRun": {
+        "endpoint": "/repos/{owner}/{repo}/actions/runs/{run_id}/rerun",
+        "method": "POST",
+        "description": "Rerun workflow",
+        "params": ["owner", "repo", "run_id"]
+      }
+    },
+    "checks": {
+      "create": {
+        "endpoint": "/repos/{owner}/{repo}/check-runs",
+        "method": "POST",
+        "description": "Create check run",
+        "params": ["owner", "repo", "name", "head_sha", "status", "conclusion"]
+      },
+      "update": {
+        "endpoint": "/repos/{owner}/{repo}/check-runs/{check_run_id}",
+        "method": "PATCH",
+        "description": "Update check run",
+        "params": ["owner", "repo", "check_run_id", "status", "conclusion", "output"]
+      },
+      "list": {
+        "endpoint": "/repos/{owner}/{repo}/commits/{ref}/check-runs",
+        "method": "GET",
+        "description": "List check runs for commit",
+        "params": ["owner", "repo", "ref"]
+      }
+    },
+    "commits": {
+      "get": {
+        "endpoint": "/repos/{owner}/{repo}/commits/{ref}",
+        "method": "GET",
+        "description": "Get commit details",
+        "params": ["owner", "repo", "ref"]
+      },
+      "list": {
+        "endpoint": "/repos/{owner}/{repo}/commits",
+        "method": "GET",
+        "description": "List commits",
+        "params": ["owner", "repo", "sha", "path", "since", "until"]
+      },
+      "compare": {
+        "endpoint": "/repos/{owner}/{repo}/compare/{base}...{head}",
+        "method": "GET",
+        "description": "Compare commits",
+        "params": ["owner", "repo", "base", "head"]
+      }
+    },
+    "issues": {
+      "create": {
+        "endpoint": "/repos/{owner}/{repo}/issues",
+        "method": "POST",
+        "description": "Create issue",
+        "params": ["owner", "repo", "title", "body", "labels", "assignees"]
+      },
+      "update": {
+        "endpoint": "/repos/{owner}/{repo}/issues/{issue_number}",
+        "method": "PATCH",
+        "description": "Update issue",
+        "params": ["owner", "repo", "issue_number", "title", "body", "state"]
+      },
+      "addComment": {
+        "endpoint": "/repos/{owner}/{repo}/issues/{issue_number}/comments",
+        "method": "POST",
+        "description": "Add comment to issue",
+        "params": ["owner", "repo", "issue_number", "body"]
+      }
+    }
+  },
+  "cicd": {
+    "enabled": true,
+    "workflows": {
+      "test": {
+        "name": "Run Tests",
+        "trigger": "pull_request",
+        "checkName": "test-suite"
+      },
+      "lint": {
+        "name": "Lint Code",
+        "trigger": "pull_request",
+        "checkName": "eslint"
+      },
+      "build": {
+        "name": "Build Project",
+        "trigger": "push",
+        "checkName": "build"
+      },
+      "deploy": {
+        "name": "Deploy",
+        "trigger": "push",
+        "branch": "main",
+        "checkName": "deployment"
+      }
+    },
+    "autoMerge": {
+      "enabled": false,
+      "conditions": {
+        "allChecksPass": true,
+        "minApprovals": 1,
+        "noConflicts": true,
+        "upToDate": true
+      }
+    }
+  },
+  "webhooks": {
+    "enabled": false,
+    "events": [
+      "push",
+      "pull_request",
+      "workflow_run",
+      "check_run",
+      "issue_comment"
+    ],
+    "endpoint": "/api/webhooks/github"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 300,
+    "maxSize": 100
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "logPath": ".kiro/logs/github-integration.log"
+  },
+  "metadata": {
+    "author": "AgentOS Team",
+    "category": "ci-cd",
+    "tags": ["github", "ci-cd", "automation", "api"],
+    "documentation": "docs/mcp/github-integration.md"
+  }
+}
