@@ -19,3 +19,6 @@ export {
   ErrorPayload,
   StateChangePayload,
 } from './system-events';
+
+// Event debugging tool
+export { EventLogger } from './event-logger';
