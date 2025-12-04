@@ -155,7 +155,7 @@ export class ContextAnalyzer {
     }
 
     // Low urgency indicators
-    if (/(when you can|no rush|eventually|sometime|curious)/.test(input)) {
+    if (/(when you (can|have time)|no rush|eventually|sometime|curious|whenever)/.test(input)) {
       urgency -= 0.2;
     }
 

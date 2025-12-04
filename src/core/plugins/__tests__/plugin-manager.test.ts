@@ -1,4 +1,5 @@
 import { EventEmitter } from '../../events';
+import { FileSystemStateStore } from '../../state';
 import { PluginManager } from '../plugin-manager';
 import { Plugin } from '../plugin';
 import { PluginContext } from '../plugin-context';
@@ -47,11 +48,13 @@ const createTrackingPlugin = (name: string, dependencies: string[] = []) => {
 
 describe('PluginManager', () => {
   let events: EventEmitter;
+  let stateStore: FileSystemStateStore;
   let manager: PluginManager;
 
   beforeEach(() => {
     events = new EventEmitter();
-    manager = new PluginManager(events);
+    stateStore = new FileSystemStateStore(events, { stateDir: '.test-state' });
+    manager = new PluginManager(events, stateStore);
   });
 
   describe('Plugin Registration', () => {

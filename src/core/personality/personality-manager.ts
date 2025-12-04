@@ -45,7 +45,7 @@ export class PersonalityManager {
     this.events = events;
     this.config = {
       defaultPersonality: config?.defaultPersonality || 'helpful',
-      confidenceThreshold: config?.confidenceThreshold || 0.3,
+      confidenceThreshold: config?.confidenceThreshold || 0.2,
       allowDynamicSwitching: config?.allowDynamicSwitching !== false,
       maxHistoryLength: config?.maxHistoryLength || 10,
       customPersonalities: config?.customPersonalities,

@@ -28,6 +28,7 @@ export const HELPFUL_PERSONALITY: Personality = {
   ],
   
   contextPatterns: [
+    'help',
     'how do i',
     'how to',
     'explain',

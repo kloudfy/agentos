@@ -18,11 +18,11 @@ export class PersonalitySelector {
    * Creates a new PersonalitySelector.
    * 
    * @param personalities - Array of personalities to select from (defaults to built-in)
-   * @param confidenceThreshold - Minimum confidence for selection (default: 0.3)
+   * @param confidenceThreshold - Minimum confidence for selection (default: 0.2)
    */
   constructor(
     personalities: readonly Personality[] = BUILT_IN_PERSONALITIES,
-    confidenceThreshold: number = 0.3
+    confidenceThreshold: number = 0.2
   ) {
     this.personalities = personalities;
     this.confidenceThreshold = confidenceThreshold;
@@ -105,13 +105,20 @@ export class PersonalitySelector {
 
     // Pattern matching (most important factor)
     const patternWeight = 0.6;
+    const patternBonus = 0.25; // Bonus per matched pattern
     maxPossibleScore += patternWeight;
 
     for (const pattern of personality.contextPatterns) {
       if (normalizedMessage.includes(pattern)) {
         matchedPatterns.push(pattern);
-        score += patternWeight / personality.contextPatterns.length;
+        // Each matched pattern adds to the score
+        score += patternBonus;
       }
+    }
+    
+    // Cap pattern score at patternWeight
+    if (matchedPatterns.length > 0) {
+      score = Math.min(score, patternWeight);
     }
 
     // Expertise level matching
