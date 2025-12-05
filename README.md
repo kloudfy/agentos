@@ -464,7 +464,7 @@ npm run test:coverage
 AgentOS follows strict code quality standards:
 
 - **TypeScript strict mode** enabled
-- **90% minimum test coverage** required
+- **90% minimum test coverage** required (~89% achieved)
 - **Zero linting errors** enforced
 - **JSDoc comments** for all public APIs
 - **Immutable data structures** preferred
