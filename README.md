@@ -40,7 +40,7 @@ Built with TypeScript and designed for scalability, AgentOS enables you to creat
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/agentos.git
+git clone https://github.com/kloudfy/agentos.git
 cd agentos
 
 # Install dependencies
@@ -418,6 +418,18 @@ Comprehensive documentation is available in multiple locations:
 - **Examples:** `examples/` - Usage examples
 - **ADRs:** Generated architecture decision records
 
+### Kiro Feature Usage
+
+See [KIRO_USAGE.md](./KIRO_USAGE.md) for comprehensive documentation of how all 5 Kiro features were used to build AgentOS:
+
+- **Spec-driven development** with 7 complete specifications
+- **MCP tools** for automation (eval runner, ADR generator, GitHub integration)
+- **Agent hooks** for quality gates and testing
+- **Steering documents** for consistent code standards
+- **Vibe coding** for rapid prototyping
+
+**Result:** Production-ready framework built in 4 hours with 393 passing tests and 89% coverage.
+
 ### Key Documents
 - [Event System Design](.kiro/specs/event-system/design.md)
 - [Plugin System Design](.kiro/specs/plugin-system/design.md)
@@ -527,8 +539,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 📞 Support
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/agentos/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/agentos/discussions)
+- **Issues:** [GitHub Issues](https://github.com/kloudfy/agentos/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/kloudfy/agentos/discussions)
 - **Documentation:** [Full Docs](./docs/)
 
 ---
