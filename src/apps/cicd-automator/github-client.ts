@@ -57,7 +57,8 @@ export class GitHubClient {
       throw new Error(`Failed to get PR: ${response.statusText}`);
     }
 
-    return await response.json();
+    const data = await response.json() as PullRequest;
+    return data;
   }
 
   /**

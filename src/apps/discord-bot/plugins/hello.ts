@@ -13,22 +13,25 @@ import { PluginContext } from '../../../core/plugins/plugin-context';
  * Responds to !hello command with a friendly greeting.
  */
 export class HelloPlugin implements Plugin {
-  readonly name = 'hello';
-  readonly version = '1.0.0';
-  readonly description = 'Greets users with a friendly message';
+  readonly metadata = {
+    name: 'hello',
+    version: '1.0.0',
+    description: 'Greets users with a friendly message',
+  };
 
   private context?: PluginContext;
 
   /**
    * Initializes the hello plugin.
    */
-  async initialize(context: PluginContext): Promise<void> {
+  async load(context: PluginContext): Promise<void> {
     this.context = context;
 
     // Listen for command events
     context.events.on('command.executed', (event) => {
-      if (event.payload?.command === 'hello') {
-        this.handleHello(event.payload);
+      const payload = event.payload as any;
+      if (payload?.command === 'hello') {
+        this.handleHello(payload);
       }
     });
 
@@ -65,9 +68,9 @@ export class HelloPlugin implements Plugin {
 
     // Store greeting count
     if (this.context) {
-      const key = 'hello:count';
-      const count = await this.context.state.get<number>(key) || 0;
-      await this.context.state.set(key, count + 1);
+      const state = await this.context.state.load<{ count: number }>();
+      const count = state?.data?.count || 0;
+      await this.context.state.save({ count: count + 1 }, 1);
     }
   }
 
@@ -78,13 +81,14 @@ export class HelloPlugin implements Plugin {
     if (!this.context) {
       return 0;
     }
-    return await this.context.state.get<number>('hello:count') || 0;
+    const state = await this.context.state.load<{ count: number }>();
+    return state?.data?.count || 0;
   }
 
   /**
    * Cleanup on shutdown.
    */
-  async shutdown(): Promise<void> {
+  async unload(): Promise<void> {
     console.log('👋 Hello plugin shutting down');
   }
 }

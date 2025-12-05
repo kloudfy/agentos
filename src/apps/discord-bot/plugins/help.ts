@@ -23,9 +23,11 @@ interface CommandInfo {
  * Displays available commands and their usage.
  */
 export class HelpPlugin implements Plugin {
-  readonly name = 'help';
-  readonly version = '1.0.0';
-  readonly description = 'Displays help information for commands';
+  readonly metadata = {
+    name: 'help',
+    version: '1.0.0',
+    description: 'Displays help information for commands',
+  };
 
   private context?: PluginContext;
   private commands: Map<string, CommandInfo> = new Map();
@@ -33,7 +35,7 @@ export class HelpPlugin implements Plugin {
   /**
    * Initializes the help plugin.
    */
-  async initialize(context: PluginContext): Promise<void> {
+  async load(context: PluginContext): Promise<void> {
     this.context = context;
 
     // Register available commands
@@ -41,8 +43,9 @@ export class HelpPlugin implements Plugin {
 
     // Listen for command events
     context.events.on('command.executed', (event) => {
-      if (event.payload?.command === 'help') {
-        this.handleHelp(event.payload);
+      const payload = event.payload as any;
+      if (payload?.command === 'help') {
+        this.handleHelp(payload);
       }
     });
 
@@ -92,9 +95,9 @@ export class HelpPlugin implements Plugin {
 
     // Track help requests
     if (this.context) {
-      const key = 'help:requests';
-      const count = await this.context.state.get<number>(key) || 0;
-      await this.context.state.set(key, count + 1);
+      const state = await this.context.state.load<{ requests: number }>();
+      const count = state?.data?.requests || 0;
+      await this.context.state.save({ requests: count + 1 }, 1);
     }
   }
 
@@ -142,13 +145,14 @@ export class HelpPlugin implements Plugin {
     if (!this.context) {
       return 0;
     }
-    return await this.context.state.get<number>('help:requests') || 0;
+    const state = await this.context.state.load<{ requests: number }>();
+    return state?.data?.requests || 0;
   }
 
   /**
    * Cleanup on shutdown.
    */
-  async shutdown(): Promise<void> {
+  async unload(): Promise<void> {
     console.log('📚 Help plugin shutting down');
   }
 }

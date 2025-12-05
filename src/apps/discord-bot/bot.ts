@@ -281,7 +281,7 @@ export class DiscordBot {
   ): Promise<void> {
     const key = `user:${userId}:commands`;
     const state = await this.stateStore.load<{ commands: string[] }>('discord-bot');
-    const history = state?.commands || [];
+    const history = state?.data?.commands || [];
     
     history.push(command);
     
@@ -298,7 +298,7 @@ export class DiscordBot {
    */
   async getUserCommandHistory(userId: string): Promise<string[]> {
     const state = await this.stateStore.load<{ commands: string[] }>('discord-bot');
-    return state?.commands || [];
+    return state?.data?.commands || [];
   }
 
   /**
@@ -312,11 +312,13 @@ export class DiscordBot {
 
     // Handle plugin events
     this.events.on('plugin.loaded', (event: BaseEvent) => {
-      console.log(`✅ Plugin loaded: ${event.payload?.plugin?.name}`);
+      const payload = event.payload as { plugin?: { name?: string } };
+      console.log(`✅ Plugin loaded: ${payload?.plugin?.name || 'unknown'}`);
     });
 
     this.events.on('plugin.error', (event: BaseEvent) => {
-      console.error(`❌ Plugin error: ${event.payload?.error}`);
+      const payload = event.payload as { error?: string };
+      console.error(`❌ Plugin error: ${payload?.error || 'unknown'}`);
     });
   }
 
@@ -362,7 +364,8 @@ export class DiscordBot {
     commandsExecuted: number;
     pluginsLoaded: number;
   }> {
-    const stats = await this.stateStore.get<any>('bot:stats') || {
+    const state = await this.stateStore.load<{ startTime: number; commandsExecuted: number }>('bot:stats');
+    const stats = state?.data || {
       startTime: Date.now(),
       commandsExecuted: 0,
     };

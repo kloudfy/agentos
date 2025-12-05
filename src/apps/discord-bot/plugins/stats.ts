@@ -24,9 +24,11 @@ interface BotStats {
  * Tracks and displays bot statistics.
  */
 export class StatsPlugin implements Plugin {
-  readonly name = 'stats';
-  readonly version = '1.0.0';
-  readonly description = 'Displays bot statistics and metrics';
+  readonly metadata = {
+    name: 'stats',
+    version: '1.0.0',
+    description: 'Displays bot statistics and metrics',
+  };
 
   private context?: PluginContext;
   private startTime: number = Date.now();
@@ -34,7 +36,7 @@ export class StatsPlugin implements Plugin {
   /**
    * Initializes the stats plugin.
    */
-  async initialize(context: PluginContext): Promise<void> {
+  async load(context: PluginContext): Promise<void> {
     this.context = context;
 
     // Listen for various events to track stats
@@ -44,8 +46,9 @@ export class StatsPlugin implements Plugin {
 
     // Listen for stats command
     context.events.on('command.executed', (event) => {
-      if (event.payload?.command === 'stats') {
-        this.handleStats(event.payload);
+      const payload = event.payload as any;
+      if (payload?.command === 'stats') {
+        this.handleStats(payload);
       }
     });
 
@@ -101,9 +104,10 @@ export class StatsPlugin implements Plugin {
       return;
     }
 
-    const commandCounts = await this.context.state.get<Record<string, number>>('stats:commands') || {};
+    const state = await this.context.state.load<{ commands: Record<string, number> }>();
+    const commandCounts = state?.data?.commands || {};
     const sorted = Object.entries(commandCounts)
-      .sort(([, a], [, b]) => b - a)
+      .sort(([, a], [, b]) => (b as number) - (a as number))
       .slice(0, 5);
 
     if (sorted.length > 0) {
@@ -123,9 +127,14 @@ export class StatsPlugin implements Plugin {
       return;
     }
 
-    const key = `stats:${stat}`;
-    const current = await this.context.state.get<number>(key) || 0;
-    await this.context.state.set(key, current + 1);
+    const state = await this.context.state.load<{ commands: number; messages: number; personality: number }>();
+    const stats = state?.data || { commands: 0, messages: 0, personality: 0 };
+    
+    if (stat === 'commands') stats.commands++;
+    else if (stat === 'messages') stats.messages++;
+    else if (stat === 'personality') stats.personality++;
+    
+    await this.context.state.save(stats, 1);
   }
 
   /**
@@ -136,8 +145,13 @@ export class StatsPlugin implements Plugin {
       return 0;
     }
 
-    const key = `stats:${stat}`;
-    return await this.context.state.get<number>(key) || 0;
+    const state = await this.context.state.load<{ commands: number; messages: number; personality: number }>();
+    const stats = state?.data || { commands: 0, messages: 0, personality: 0 };
+    
+    if (stat === 'commands') return stats.commands;
+    if (stat === 'messages') return stats.messages;
+    if (stat === 'personality') return stats.personality;
+    return 0;
   }
 
   /**
@@ -168,9 +182,7 @@ export class StatsPlugin implements Plugin {
       return;
     }
 
-    await this.context.state.set('stats:commands', 0);
-    await this.context.state.set('stats:messages', 0);
-    await this.context.state.set('stats:personality', 0);
+    await this.context.state.save({ commands: 0, messages: 0, personality: 0 }, 1);
     
     this.startTime = Date.now();
     
@@ -180,7 +192,7 @@ export class StatsPlugin implements Plugin {
   /**
    * Cleanup on shutdown.
    */
-  async shutdown(): Promise<void> {
+  async unload(): Promise<void> {
     console.log('📊 Stats plugin shutting down');
   }
 }

@@ -33,12 +33,13 @@ export async function main(): Promise<void> {
     // Example scenarios (in real use, load from test suite)
     const scenarios: EvalScenario[] = [
       {
-        id: 'test-1',
         name: 'Basic functionality test',
         description: 'Tests core functionality',
-        input: { test: 'data' },
-        expectedOutput: { result: 'success' },
-        category: 'functionality',
+        weight: 1.0,
+        test: {
+          action: 'custom',
+          testFn: async () => true,
+        },
       },
     ];
 

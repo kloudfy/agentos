@@ -39,10 +39,7 @@ export class QualityChecker {
   constructor(baselinePath: string, threshold: number, maxDrop: number) {
     this.harness = new EvalHarness();
     this.baseline = new BaselineManager(baselinePath);
-    this.gate = new QualityGate(this.baseline, {
-      minScore: threshold,
-      maxRegression: maxDrop / 100, // Convert percentage to decimal
-    });
+    this.gate = new QualityGate();
   }
 
   /**
@@ -51,8 +48,21 @@ export class QualityChecker {
   async runCheck(scenarios: EvalScenario[]): Promise<QualityCheckResult> {
     console.log(`🔍 Running quality check on ${scenarios.length} scenarios...`);
 
-    // Run eval harness
-    const results = await this.harness.runScenarios(scenarios);
+    // Run eval harness - create a suite
+    const suite: import('../../core/eval/types').EvalSuite = {
+      name: 'Quality Check',
+      version: '1.0.0',
+      description: 'CI/CD quality check',
+      scenarios,
+      quality_thresholds: {
+        minimum: 0.7,
+        warning: 0.8,
+        regression_tolerance: 0.05,
+        blocking: true,
+      },
+    };
+    const report = await this.harness.run(suite);
+    const results = [...report.results];
 
     // Calculate score
     const score = this.calculateScore(results);
@@ -66,7 +76,8 @@ export class QualityChecker {
       : 0;
 
     // Check if passed
-    const passed = await this.gate.check(results);
+    const gateResult = this.gate.checkQuality(report, suite.quality_thresholds);
+    const passed = gateResult.passed;
 
     // Count results
     const scenariosPassed = results.filter(r => r.passed).length;
@@ -106,8 +117,8 @@ export class QualityChecker {
    */
   private async getBaselineScore(): Promise<number> {
     try {
-      const baseline = await this.baseline.getBaseline('default');
-      return baseline.averageScore;
+      const baseline = await this.baseline.loadBaseline('Quality Check');
+      return baseline?.score || 0;
     } catch {
       return 0;
     }

@@ -114,7 +114,7 @@ export class CICDAutomator {
 
     // Analyze impact
     const impact = this.adrDetector.analyzeImpact(changes);
-    console.log(`⚠️  Impact: ${impact.severity} (${impact.breakingChanges} breaking)`);
+    console.log(`⚠️  Impact: ${impact.severity} (${impact.breakingChangesCount} breaking)`);
 
     // Generate ADR
     const number = await this.adrManager.getNextNumber();
