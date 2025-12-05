@@ -19,12 +19,11 @@
  * ```
  */
 
-import { EventEmitter } from '../../core/events/event-emitter';
+import { EventEmitter, BaseEvent } from '../../core/events';
 import { PluginManager } from '../../core/plugins/plugin-manager';
 import { PluginContext } from '../../core/plugins/plugin-context';
-import { FileSystemStateStore } from '../../core/state/filesystem-state-store';
+import { FileSystemStateStore } from '../../core/state';
 import { PersonalityManager } from '../../core/personality/personality-manager';
-import { BaseEvent } from '../../core/events/types';
 import { Plugin } from '../../core/plugins/plugin';
 
 /**
@@ -96,15 +95,20 @@ export class DiscordBot {
 
     // Initialize core systems
     this.events = new EventEmitter();
-    this.stateStore = new FileSystemStateStore(this.config.stateDir);
+    this.stateStore = new FileSystemStateStore(this.events, { 
+      stateDir: this.config.stateDir 
+    });
     this.personalityManager = new PersonalityManager(this.events);
     
     // Create plugin context
-    this.context = new PluginContext(
-      'discord-bot',
-      this.events,
-      this.stateStore
-    );
+    this.context = {
+      name: 'discord-bot',
+      events: this.events,
+      state: this.stateStore,
+      getPlugin: (name: string) => null,
+      config: {},
+      logger: console,
+    } as any;
 
     // Initialize plugin manager
     this.pluginManager = new PluginManager(
@@ -140,6 +144,7 @@ export class DiscordBot {
       id: this.generateId(),
       timestamp: new Date(),
       payload: { prefix: this.config.prefix },
+      metadata: { source: 'discord-bot' },
     });
 
     console.log(`✅ Bot started with prefix: ${this.config.prefix}`);
@@ -161,6 +166,8 @@ export class DiscordBot {
       type: 'bot.stopped',
       id: this.generateId(),
       timestamp: new Date(),
+      payload: {},
+      metadata: { source: 'discord-bot' },
     });
 
     console.log('✅ Bot stopped');
@@ -183,6 +190,7 @@ export class DiscordBot {
       id: this.generateId(),
       timestamp: new Date(),
       payload: { message },
+      metadata: { source: 'discord-bot' },
     });
 
     // Check if message is a command
@@ -201,12 +209,12 @@ export class DiscordBot {
     // Select personality based on message context
     let personality = 'helpful';
     if (this.config.enablePersonality) {
-      const match = this.personalityManager.selectPersonality({
-        userMessage: message.content,
-        conversationHistory: [],
-        userExpertise: 'intermediate',
-        taskComplexity: 'simple',
-      });
+      const match = await this.personalityManager.analyzeAndSwitch(
+        message.content,
+        {
+          expertiseLevel: 'intermediate',
+        }
+      );
       personality = match.personality.name;
     }
 
@@ -236,6 +244,7 @@ export class DiscordBot {
         user: message.author.username,
         personality,
       },
+      metadata: { source: 'discord-bot' },
     });
 
     // Store command in user history
@@ -259,6 +268,7 @@ export class DiscordBot {
       id: this.generateId(),
       timestamp: new Date(),
       payload: { channelId, content },
+      metadata: { source: 'discord-bot' },
     });
   }
 
@@ -270,7 +280,8 @@ export class DiscordBot {
     command: string
   ): Promise<void> {
     const key = `user:${userId}:commands`;
-    const history = await this.stateStore.get<string[]>(key) || [];
+    const state = await this.stateStore.load<{ commands: string[] }>('discord-bot');
+    const history = state?.commands || [];
     
     history.push(command);
     
@@ -279,15 +290,15 @@ export class DiscordBot {
       history.shift();
     }
     
-    await this.stateStore.set(key, history);
+    await this.stateStore.save('discord-bot', { commands: history }, 1);
   }
 
   /**
    * Gets user's command history.
    */
   async getUserCommandHistory(userId: string): Promise<string[]> {
-    const key = `user:${userId}:commands`;
-    return await this.stateStore.get<string[]>(key) || [];
+    const state = await this.stateStore.load<{ commands: string[] }>('discord-bot');
+    return state?.commands || [];
   }
 
   /**
