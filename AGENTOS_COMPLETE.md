@@ -74,11 +74,11 @@ AgentOS is a complete, production-ready agent operating system built with TypeSc
 ## 📊 Project Statistics
 
 ### Code Metrics
-- **Total Files:** 80+ TypeScript files
+- **Total Files:** 68 TypeScript files
 - **Total Lines:** ~15,000 lines of code
 - **Test Files:** 30+ test suites
 - **Total Tests:** 151 passing tests
-- **Test Coverage:** >90% across all modules
+- **Test Coverage:** ~89% across all modules
 - **Documentation:** 3,000+ lines
 
 ### Core Systems
@@ -210,7 +210,7 @@ npm test -- src/core/eval
 ```
 Test Suites: 30 passed, 30 total
 Tests:       151 passed, 151 total
-Coverage:    >90% across all modules
+Coverage:    ~89% across all modules
 ```
 
 ## 🎯 Use Cases
@@ -271,7 +271,7 @@ MAX_QUALITY_DROP=5
 - ✅ Prettier formatted
 
 ### Testing
-- ✅ >90% code coverage
+- ✅ ~89% code coverage
 - ✅ Unit tests for all modules
 - ✅ Integration tests
 - ✅ AAA pattern (Arrange-Act-Assert)
@@ -320,7 +320,7 @@ agentos/
 ## 🤝 Contributing
 
 1. Follow TypeScript strict mode
-2. Add comprehensive tests (>90% coverage)
+2. Add comprehensive tests (~89% coverage)
 3. Include JSDoc documentation
 4. Follow architecture principles
 5. Update relevant README files
@@ -377,7 +377,7 @@ AgentOS is complete and production-ready! Potential enhancements:
 
 ✅ 6 core systems (Events, State, Plugins, Personality, Eval, ADR)
 ✅ 2 example applications (Discord Bot, CI/CD Automator)
-✅ 151 passing tests with >90% coverage
+✅ 151 passing tests with ~89% coverage
 ✅ Comprehensive documentation
 ✅ TypeScript strict mode throughout
 ✅ Production-ready code quality
@@ -390,4 +390,4 @@ AgentOS is complete and production-ready! Potential enhancements:
 
 **Built with ❤️ using AgentOS principles**
 **Version:** 1.0.0
-**Last Updated:** January 2024
+**Last Updated:** December 2025
