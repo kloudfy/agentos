@@ -467,6 +467,14 @@ Used Kiro's Vibe mode for rapid prototyping of the EventLogger debugging utility
 
 **Result:** 200+ lines production code, 280+ lines tests
 
+### Screenshots
+
+**First Draft:**  
+![Vibe Mode - First Draft](docs/screenshots/vibe-01-first-draft.png)
+
+**Refined with Colors:**  
+![Vibe Mode - Enhanced](docs/screenshots/vibe-02-colors-refined.png)
+
 ### Features Delivered
 
 ```typescript
